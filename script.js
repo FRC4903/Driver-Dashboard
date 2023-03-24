@@ -64,14 +64,14 @@ function setup() {
 	engaged = false
 	temp = 0
 
-	resizeCanvas(1920,1080, P2D);
+	resizeCanvas(1920,19080, P2D);
 	noCursor();
 
 	var orderConfirmation_close = function(button) {
 		if (button == "Yes") {
 			msgbox.showMsgBox(feedbackForm, "Feedback info", "Your note has been confirmed!",	MSGBOX_INFO_ICON, ["OK"], null);
 
-			historyListBox.items.push(amountTextBox.text + " cookies | ID: " + (historyListBox.items.length + 1));
+			historyListBox.items.push(amountTextBox.text + " | ID: " + (historyListBox.items.length + 1));
 
 			if (attachNotesCheckBox.checked) {
 				historyListBox.items[historyListBox.items.length - 1] = historyListBox.items[historyListBox.length - 1]	+ " | NOTES: " + notesTextBox.text;
@@ -161,7 +161,6 @@ function setup() {
 
 	var amountTextBox = new P5TextBox();
 	amountTextBox.anchorRight;
-	amountTextBox.maxLength = 3;
 	amountTextBox.x = 100;
 	amountTextBox.y = 25;
 
@@ -474,7 +473,7 @@ function keyReleased() {
 }
 
 function windowResized() {
-	createCanvas(document.body.clientWidth, 500);
+	createCanvas(document.body.clientWidth, 1080);
 }
 
 function UI(object) {
@@ -540,7 +539,7 @@ function UI(object) {
 function mouseClicked() {
 	for (i = 0; i < 3; i+=1) {
 	  for (j = 0; j < 9; j+=1) {
-		if (onHitbox(scoreform.x+20+j*80+50, scoreForm.y+10+i*100+120, 60, 60)) {
+		if (onHitbox(scoreForm.x+20+j*80+50, scoreForm.y+10+i*100+120, 60, 60)) {
 		  if (grid[i][j] == 0) {
 			grid[i][j] = 1;
 			calculateScore("piece", i, j, 1)
