@@ -123,11 +123,12 @@ function setup() {
 		if (button == "Yes") {
 			msgbox.showMsgBox(feedbackForm, "Feedback info", "Your note has been confirmed!",	MSGBOX_INFO_ICON, ["OK"], null);
 
-			historyListBox.items.push(DRIVERnameTextBox.text + " | " + (historyListBox.items.length + 1));
-
 			if (attachNotesCheckBox.checked) {
-				historyListBox.items[historyListBox.items.length - 1] = historyListBox.items[historyListBox.length - 1]	+ " | NOTES: " + notesTextBox.text;
+				historyListBox.items.push(DRIVERnameTextBox.text + " | " + notesTextBox.text);
+			}else{
+				historyListBox.items.push("Private" + " | " + notesTextBox.text);
 			}
+
 		} else {
 			msgbox.showMsgBox(feedbackForm, "Feedback info", "Your note has been canceled!", MSGBOX_STOP_ICON, ["OK"], null);
 		}
