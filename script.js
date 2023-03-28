@@ -5,7 +5,6 @@ let gripperWidth = 5;
 let armJointSize = 10;
 let arm1Angle, arm2Angle;
 let gripperClosed;
-
 let angle = 0;
 
 var feedbackForm, historyForm, themesForm, threeDForm;
@@ -449,6 +448,14 @@ function setup() {
 
 function draw() {
 	background(220);
+	var a = loadJSON("NetworkTables/arm.json");
+	var b = loadJSON("NetworkTables/balance.json");
+	var c = loadJSON("NetworkTables/LED.json");
+
+	arm1Angle = a.arm1Angle;
+	arm2Angle = a.arm2Angle;
+	angle = b.balanceAngle;
+	shape = c.colorState;
 
 	var c = threeDCanvas.canvas;
 

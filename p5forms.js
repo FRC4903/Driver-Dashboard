@@ -24,9 +24,6 @@ class P5FormStyle {
 }
 
 class P5FormManager {
-	libVersion = 1.220627;
-	libAuthor = "io.github.bmorawiec";
-	libFork = "bmorawiec";
 
 	forms = [];
 
