@@ -18,6 +18,47 @@ var formManager;
 var MUSTANGFormStyle, MUSTANGControlStyle;
 var formCursor;
 
+var scoreForm;
+var armForm;
+var DRIVERnameTextBox
+
+var engaged = false;
+var score;
+var docked = false;
+
+var fon
+
+var LEDcanvas;
+var LEDform;
+
+var g;
+var shape = 0
+var lastState = false;
+var lastState = false
+var img
+
+var engegedState
+var chargeState
+
+w = 400;
+h = 400;
+
+
+// swerve
+
+// Wheel angle of rotation and magnitude of each wheel
+wheelA = [10, 20];
+wheelB = [10, 20];
+wheelC = [10, 20];
+wheelD = [10, 20];
+
+// Rotation of whole robot
+totRotation = 0;
+
+//2D list of all wheels
+wheels = [wheelA, wheelB, wheelC, wheelD];
+
+
 function preload() {
 	MUSTANGFormStyle = new P5FormStyle();
 	MUSTANGControlStyle = new P5ControlStyle();
@@ -44,19 +85,30 @@ function preload() {
 
 	MUSTANGControlStyle.buttonTextColor =
 		MUSTANGControlStyle.buttonClickedColor = color(255, 70, 0);
-
 }
 
 function setup() {
 
-	arm1Angle = 0;
+	img = loadImage('rainbow.png');
+	fon = loadFont('p5forms_data/ShareTechMono-Regular.ttf')
+
+	arm1Angle = 340;
 	arm2Angle = 0;
 	gripperClosed = false;
 
 	angleMode(DEGREES)
 
 	grid = [[0,0,0,0,0,0,0,0,0],
-         [0,0,0,0,0,0,0,0,0],                  [0,0,0,0,0,0,0,0,0]]
+           [0,0,0,0,0,0,0,0,0],                 
+		   [0,0,0,0,0,0,0,0,0]]
+
+	modeScored = [[0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0],                 
+	[0,0,0,0,0,0,0,0,0]]
+
+	dockedVals = [[0,0],[0,0]]
+
+
 	score = 0;
 	links = 0;
 	mode = "auto"
@@ -64,14 +116,14 @@ function setup() {
 	engaged = false
 	temp = 0
 
-	resizeCanvas(1920,19080, P2D);
+	resizeCanvas(1920,1080, P2D);
 	noCursor();
 
 	var orderConfirmation_close = function(button) {
 		if (button == "Yes") {
 			msgbox.showMsgBox(feedbackForm, "Feedback info", "Your note has been confirmed!",	MSGBOX_INFO_ICON, ["OK"], null);
 
-			historyListBox.items.push(amountTextBox.text + " | ID: " + (historyListBox.items.length + 1));
+			historyListBox.items.push(DRIVERnameTextBox.text + " | " + (historyListBox.items.length + 1));
 
 			if (attachNotesCheckBox.checked) {
 				historyListBox.items[historyListBox.items.length - 1] = historyListBox.items[historyListBox.length - 1]	+ " | NOTES: " + notesTextBox.text;
@@ -82,7 +134,7 @@ function setup() {
 	}
 
 	var cookiesButton_onClick = function() {
-		if (amountTextBox.text == "") {
+		if (DRIVERnameTextBox.text == "") {
 			msgbox.showMsgBox(feedbackForm, "Warning", "Please enter your name", MSGBOX_WARN_ICON, ["OK"], null);
 		} else {
 			msgbox.showMsgBox(feedbackForm, "Question",
@@ -159,10 +211,11 @@ function setup() {
 	attachNotesCheckBox.h = 16;
 	attachNotesCheckBox.text = "Notes:";
 
-	var amountTextBox = new P5TextBox();
-	amountTextBox.anchorRight;
-	amountTextBox.x = 100;
-	amountTextBox.y = 25;
+	DRIVERnameTextBox = new P5TextBox();
+	DRIVERnameTextBox.anchorRight;
+	DRIVERnameTextBox.maxLength = 16;
+	DRIVERnameTextBox.x = 100;
+	DRIVERnameTextBox.y = 25;
 
 	var notesTextBox = new P5TextBox();
 	notesTextBox.anchorRight = true;
@@ -177,7 +230,7 @@ function setup() {
 	feedbackForm.container.addControl(orderingInfoLabel);
 	feedbackForm.container.addControl(cookiesButton);
 	feedbackForm.container.addControl(prevOrdersButton);
-	feedbackForm.container.addControl(amountTextBox);
+	feedbackForm.container.addControl(DRIVERnameTextBox);
 	feedbackForm.container.addControl(notesTextBox);
 	feedbackForm.container.addControl(themeButton);
 	feedbackForm.container.addControl(attachNotesCheckBox);
@@ -320,13 +373,13 @@ function setup() {
 	
 	clearCanvas(balanceCanvas);
 
-	var scoreForm = new P5Form();
+	scoreForm = new P5Form();
 	
 	scoreForm.x = 1350;
 	scoreForm.y = 30;
-	scoreForm.w = 820;
-	scoreForm.h = 440;
-	scoreForm.container.backColor = color(230, 255, 230);
+	scoreForm.w = 820*0.8;
+	scoreForm.h = 440*0.8;
+	scoreForm.container.backColor = color(220);
 	scoreForm.title = "Scoring Tracker";
 	
 	scoreCanvas = new P5Canvas();
@@ -334,9 +387,46 @@ function setup() {
 	scoreCanvas.h = 400;
 	scoreCanvas.x = 10;
 	
+
+	LEDform = new P5Form();
+
+	LEDform.x = 1;
+	LEDform.y = 3;
+	LEDform.w = 200;
+	LEDform.h = 200;
+	LEDform.container.backColor = color(220);
+	LEDform.title = "LED";
 	
-	
+	LEDcanvas = new P5Canvas();
+	LEDcanvas.w = 180;
+	LEDcanvas.h = 180;
+
 	scoreForm.container.addControl(scoreCanvas);	
+	LEDform.container.addControl(LEDcanvas)
+	
+	// Show the form
+	formManager.showForm(scoreForm);
+	
+	// Clear the canvas
+	clearCanvas(scoreCanvas);
+
+	swerveForm = new P5Form();
+	
+	swerveForm.x = 1350;
+	swerveForm.y = 30;
+	swerveForm.w = 420;
+	swerveForm.h = 420;
+	swerveForm.container.backColor = color(220);
+	swerveForm.title = "Swerve";
+	
+	swerveCanvas = new P5Canvas();
+	swerveCanvas.w = 400;
+	swerveCanvas.h = 400;
+	swerveCanvas.x = 10;
+	
+	
+	
+	swerveForm.container.addControl(swerveCanvas);	
 
 	// Show the form
 	formManager.showForm(scoreForm);
@@ -349,12 +439,15 @@ function setup() {
 	formManager.showForm(armForm);
 	formManager.showForm(balanceForm);
 	formManager.showForm(scoreForm);
+	formManager.showForm(swerveForm);
+	formManager.showForm(LEDform);
+
 
 	windowResized();
 }
 
 function draw() {
-	background(200);
+	background(220);
 
 	var c = threeDCanvas.canvas;
 
@@ -417,8 +510,7 @@ function draw() {
 
 	e.strokeWeight(0)
 	e.textSize(28)
-
-	e.text("Balance", 150, 30)
+	e.textFont(fon)
 	e.text("angle: " + str(angle % 360), 160, 340)
 
 	e.strokeWeight(4)
@@ -441,24 +533,54 @@ function draw() {
 
 	var f = scoreCanvas.canvas;
 
+	f.background(220)
+
 	for (i = 0; i < 3; i+=1) {
 		for (j = 0; j < 9; j+=1) {
 		  if (grid[i][j] === 1) {
-			f.fill("red")
+			f.fill("#e08000")
 		  }
 		  if (j % 3 == 1) {
 			  if (grid[i][j] === 1) {
-				  f.fill("blue")
+				  f.fill("#5b2dc6")
 			  }
-			  f.rect(j*80+50, i*100+120, 60, 60)
+			  f.rect((j*80+50)*0.8, (i*100+120)*0.8, 60*0.8, 60*0.8)
 		  }
 		  else {
-			f.triangle(j*80+80, i*100+120, j*80+50, i*100+180, j*80+110, i*100+180)
+			f.triangle((j*80+80)*0.8, (i*100+120)*0.8, (j*80+50)*0.8, (i*100+180)*0.8, (j*80+110)*0.8, (i*100+180)*0.8)
 		  }
 		  f.fill("white")
 		}
 	  }
 	  UI(f);
+
+	  g = LEDcanvas.canvas;
+	  g.rectMode(RADIUS)
+  
+	  g.background(220);
+		currentState = mouseIsPressed
+	  if(currentState != lastState && currentState === true && onHitboxV2(10,10,180,180)){
+		  if(shape == 3)shape = 0
+		  else shape += 1
+	  }
+	  lastState = mouseIsPressed
+	  
+	  if (shape == 1){
+		  drawCube(g)
+	  }
+	  if(shape == 2){
+		  drawCone(g)
+	  }
+	  if (shape == 3) {
+		  g.image(img, 10, 5)
+	  }
+
+	var j = swerveCanvas.canvas;
+	j.translate(w / 2, h / 2);
+	j.rotate(totRotation);
+	j.translate(-w / 2, -h / 2);
+	  swerve(j);
+
 
 	formManager.renderForms();
 	formCursor.render();
@@ -466,6 +588,33 @@ function draw() {
 
 function keyPressed() {
 	formManager.keyPressed();
+
+	// Testing
+	if (keyCode == LEFT_ARROW) {
+		totRotation += 0.1;
+	} else if (keyCode == RIGHT_ARROW) {
+		totRotation -= 0.1;
+	}
+	if (keyCode == UP_ARROW) {
+		for (let i = 0; i < 4; i += 1) {
+			wheels[i][0] += 1;
+			// wheels[i][1] += 1;
+		}
+	} else if (keyCode == DOWN_ARROW) {
+		for (let i = 0; i < 4; i += 1) {
+			wheels[i][0] -= 1;
+			// wheels[i][1] -= 1;
+		}
+	}
+	if (keyCode == "SPACE") {
+		// Anything else stops rotation
+		// for (let i = 0; i < 4; i += 1) {
+		// 	wheels[i][0] = 0;
+		// 	// wheels[i][1] -= 1;
+		// }
+		// totRotation = 0;
+		return 0;
+	}
 }
 
 function keyReleased() {
@@ -473,97 +622,191 @@ function keyReleased() {
 }
 
 function windowResized() {
-	createCanvas(document.body.clientWidth, 1080);
+	createCanvas(document.body.clientWidth, 945);
+}
+
+function drawCube(object){
+	object.fill(160,0,255)
+	object.strokeWeight(0)
+	object.rect(90,80,70,70,5)
+}
+
+function drawCone(object){
+	object.fill(255,255,0)
+	object.stroke(255,255,0)
+	object.strokeWeight(8)
+	object.strokeJoin(ROUND);
+	object.triangle(20,150,160,150,90,10)
+}
+
+// swerve
+function swerve(object) {
+
+	// swerve diagram
+	n = 400 / 4;
+	// Arrows
+	let v1 = createVector(n, n);
+	let v2 = createVector(n, 400 - n);
+	let v3 = createVector(400 - n, 400 - n);
+	let v4 = createVector(400 - n, n);
+	arrows = [v1, v2, v3, v4];
+		// Swerve Display Thing
+
+	object.background(255);
+
+	//Box
+	object.strokeWeight(5);
+  
+	object.push();
+	// Drawing frame and wheels, and rotating
+
+	object.quad(n, n, n, h - n, w - n, h - n, w - n, n);
+	a = [n, n];
+	object.circle(n, n, n / 5);
+	object.circle(w - n, n, n / 5);
+	object.circle(n, h - n, n / 5);
+	object.circle(w - n, h - n, n / 5);
+	object.pop();
+  
+	for (let i = 0; i < 4; i++) {
+		object.push();
+		object.stroke(205, 0, 0);
+		object.strokeWeight(w / 80);
+		// Drawing and rotating vectors depending on totrotation
+		object.translate(w / 2, h / 2);
+		object.rotate(totRotation);
+		object.translate(-w / 2, -h / 2);
+	
+		// Drawing and rotating vectors depending on independant wheel rotation
+		object.translate(arrows[i].x, arrows[i].y);
+		object.rotate(wheels[i][0]);
+		object.translate(-arrows[i].x, -arrows[i].y);
+		object.triangle(
+			arrows[i].x + wheels[i][1]+5,
+			arrows[i].y + wheels[i][1]-5,
+			arrows[i].x + wheels[i][1] - 5,
+			arrows[i].y + wheels[i][1] + 5,
+			arrows[i].x + wheels[i][1]+8,
+			arrows[i].y + wheels[i][1]+8,
+		);
+		object.line(
+			arrows[i].x,
+			arrows[i].y,
+			arrows[i].x + wheels[i][1],
+			arrows[i].y + wheels[i][1]
+		);
+		object.pop();
+	}
 }
 
 function UI(object) {
 	object.fill("black")
-	for (i = 200; i < 800; i+=200) {
-	  object.line(i, 0, i, 100)
+	for (i = 200*0.8; i < 800*0.8; i+=200*0.8) {
+	  object.line(i, 0, i, 100*0.8)
 	}
-	object.line(0, 100,  800, 100)
-	object.textSize(30);
-	object.text("MODE", 50, 30)
+	object.line(0, 100*0.8,  800*0.8, 100*0.8)
+	object.textSize(30*0.8);
+	object.text("MODE", 65*0.8, 30*0.8)
 	object.noFill()
-	object.rect(10, 40, 180, 50)
-	object.line(100, 40, 100, 90)
+	object.rect(10*0.8, 40*0.8, 180*0.8, 50*0.8)
+	object.line(100*0.8, 40*0.8, 100*0.8, 90*0.8)
 	
 	object.fill(144, 238, 144)
 	if (mode == "auto") {
-		object.rect(10, 40, 90, 50)
+		object.rect(10*0.8, 40*0.8, 90*0.8, 50*0.8)
 	}
 	
 	else {
-		object.rect(100, 40, 90, 50)
+		object.rect(100*0.8, 40*0.8, 90*0.8, 50*0.8)
 	}
 	
 	object.fill("black")
-	object.text("Auto", 25, 75)
-	object.textSize(23)
-	object.text("Tele-OP", 104, 72)
+	object.text("Auto", 22*0.8, 75*0.8)
+	object.textSize(21*0.8)
+	object.text("Tele-OP", 105*0.8, 72*0.8)
 	
-	object.textSize(33)
-	object.text("SCORE", 240, 30)
+	object.textSize(33*0.8)
+	object.text("SCORE", 255*0.8, 30*0.8)
 	
-	object.textSize(35)
+	object.textSize(35*0.8)
 	//change line to this for links to be counted towards score
-	//text((score+links*5).toString(), 290, 75)
-	object.text((score).toString(), 290, 75)
+	object.text((score+links*5).toString(), 290*0.8, 75*0.8)
 	
-	object.textSize(30)
-	object.text("Docked?", 410, 35)
-	object.text("Engaged?", 410, 75)
+	object.textSize(30*0.8)
+	object.text("Docked?", 410*0.8, 35*0.8)
+	object.text("Engaged?", 410*0.8, 75*0.8)
 	
 	object.noFill()
 	if (docked) {
 		object.fill("green")
 	}
-	object.rect(555, 15, 20, 20)
+	object.rect(555*0.8, 15*0.8, 20*0.8, 20*0.8)
 	object.noFill()
 	
 	if (engaged) {
 		object.fill("green")
 	}
-	object.rect(555, 55, 20, 20)
+	object.rect(555*0.8, 55*0.8, 20*0.8, 20*0.8)
 	
 	object.fill("black")
 	
-	object.textSize(30)
-	object.text("LINKS", 650, 30)
+	object.textSize(30*0.8)
+	object.text("LINKS", 655*0.8, 30*0.8)
 	
-	object.textSize(35)
-	object.text(links.toString(), 690,75)
+	object.textSize(35*0.8)
+	object.text(links.toString(), 690*0.8,75*0.8)
 	object.fill("white")
   }
 
 function mouseClicked() {
 	for (i = 0; i < 3; i+=1) {
 	  for (j = 0; j < 9; j+=1) {
-		if (onHitbox(scoreForm.x+20+j*80+50, scoreForm.y+10+i*100+120, 60, 60)) {
+		if (onHitbox((j*80+50)*0.8, (i*100+120)*0.8, 60*0.8, 60*0.8)) {
 		  if (grid[i][j] == 0) {
 			grid[i][j] = 1;
+			//if not scored before
+			if (modeScored[i][j] == 0) {
+				if (mode=="auto") {
+					modeScored[i][j] = "auto"
+				}
+				else {
+					modeScored[i][j] = "tele"
+				}
+			}
 			calculateScore("piece", i, j, 1)
+			computeLinks()
 		  }
 		  else {
 			grid[i][j] = 0;
+			//if not scored before
+			if (modeScored[i][j] == 0) {
+				if (mode=="auto") {
+					modeScored[i][j] = "auto"
+				}
+				else {
+					modeScored[i][j] = "tele"
+				}
+			}
 			calculateScore("piece", i, j, -1)
+			computeLinks()
 		  }
 		}
 	  }
 	}
-	if (onHitbox(10, 40, 90, 50)) {
+	if (onHitbox(10*0.8, 40*0.8, 90*0.8, 50*0.8)) {
 	  mode = "auto"
 	  docked = false
 	  engaged = false
+	  computeLinks()
 	}
-	if (onHitbox(100, 40, 90, 50)) {
+	if (onHitbox(100*0.8, 40*0.8, 90*0.8, 50*0.8)) {
 	  mode = "tele"
 	  docked = false
 	  engaged = false
+	  computeLinks()
 	}
-	//rect(555, 55, 20, 20)
-	//rect(555, 15, 20, 20)
-	if (onHitbox(555, 15, 20, 20)) {
+
+	if (onHitbox(555*0.8, 15*0.8, 20*0.8, 20*0.8)) {
 	  if (!docked) {
 		docked = true;
 		calculateScore("dock", -1, -1, 1)
@@ -573,7 +816,7 @@ function mouseClicked() {
 		calculateScore("dock", -1, -1, -1)
 	  }
 	}
-	if (onHitbox(555, 55, 20, 20)) {
+	if (onHitbox(555*0.8, 55*0.8, 20*0.8, 20*0.8)) {
 	  if (!engaged) {
 		engaged = true;
 		calculateScore("eng", -1, -1, 1)
@@ -586,24 +829,41 @@ function mouseClicked() {
   }
   
   function onHitbox(x, y, w, h) {
-	return (mouseX > x && mouseX < x+w && mouseY > y && mouseY < y+h);
+	return (scoreForm.mouseX-12 > x && scoreForm.mouseX-12 < x+w && scoreForm.mouseY-(30*0.8) > y && scoreForm.mouseY-(30*0.8) < y+h);
+  }
+
+  function onHitboxV2(x, y, w, h) {
+	return (LEDform.mouseX-8 > x && LEDform.mouseX-8 < x+w && LEDform.mouseY-(30*0.8) > y && LEDform.mouseY-(30*0.8) < y+h);
   }
   
   //dock, eng, piece
   function calculateScore(type, y, x, operation) {
-	if (mode == "auto") {
-	  if (type == "piece") {
-		if (y == 2) {
-		  score += 3*operation
-		}
-		else if (y == 1) {
-		  score += 4*operation
+	if (type == "piece") {
+		if (modeScored[y][x] == "auto") {
+			if (y == 2) {
+				score += 3*operation
+			}
+			else if (y == 1) {
+				score += 4*operation
+			}
+			else {
+				score += 6*operation
+			}
 		}
 		else {
-		  score += 6*operation
+			if (y == 2) {
+				score += 2*operation
+			}
+			else if (y == 1) {
+				score += 3*operation
+			}
+			else {
+				score += 5*operation
+			} 
 		}
-	  }
-	  else if (type == "dock") {
+	}
+	else if (mode == "auto") {
+	  if (type == "dock") {
 		score += 8*operation
 	  }
 	  else {
@@ -611,18 +871,7 @@ function mouseClicked() {
 	  }
 	}
 	else {
-	  if (type == "piece") {
-		if (y == 2) {
-		  score += 2*operation
-		}
-		else if (y == 1) {
-		  score += 3*operation
-		}
-		else {
-		  score += 5*operation
-		} 
-	  }
-	  else if (type == "dock") {
+	  if (type == "dock") {
 		score += 6*operation
 	  }
 	  else {
@@ -637,10 +886,8 @@ function mouseClicked() {
 	for (i = 0; i < 3; i+=1) {
 	  for (j = 0; j <= 6; j+=1) {
 		if (grid[i][j] && grid[i][j+1] && grid[i][j+2]) {
-		  if (mode != "auto") {
 			temp+=1
 			j+=2
-		  }
 		}
 	  }
 	}

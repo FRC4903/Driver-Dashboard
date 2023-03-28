@@ -1,9 +1,3 @@
-/*
-*	p5forms for p5.js (Version 1.22.06.27)
-*	Easily create and manage windows and controls on the p5.js canvas
-*	Created by Bartosz Morawiec, 2022
-*	https://bmorawiec.github.io/
-*/
 
 
 const WND_STATE_NORMAL = 0, WND_STATE_MAXIMIZED = 1, WND_STATE_MINIMIZED = 2;
