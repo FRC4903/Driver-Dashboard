@@ -26,24 +26,25 @@ def add_cors_headers(response):
 @app.route("/")
 def hello():
     arm = {
-        'arm1Angle': table.getNumber('arm1Angle', 0),
-        'arm2Angle': table.getNumber('arm2Angle', 0)
+        'arm1Angle': table.getNumber('arm1Angle', 120),
+        'arm2Angle': table.getNumber('arm2Angle', 40),
+        'gripperClosed': table.getNumber('gripperStatus', 1)
     }
     balance = {
-        'balanceAngle': table.getNumber('balanceAngle', 0)
+        'balanceAngle': table.getNumber('balanceAngle', 6)
     }
     LED = {
         'colorState': table.getNumber('colorState', 0)
     }
     swerve = {
-        'FLAngle': table.getNumber('FLCC',0),
-        'FRAngle': table.getNumber('FRCC', 0),
-        'BLAngle': table.getNumber('BLCC', 0),
-        'BRAngle': table.getNumber('BRCC', 0),
-        'FLPow': table.getNumber('FLWM', 0),
-        'FRPow': table.getNumber('FRWM', 0),
-        'BLPow': table.getNumber('BLWM', 0),
-        'BRPow': table.getNumber('BRWM', 0)
+        'FLAngle': table.getNumber('FLCC',12),
+        'FRAngle': table.getNumber('FRCC', 12),
+        'BLAngle': table.getNumber('BLCC', 12),
+        'BRAngle': table.getNumber('BRCC', 12),
+        'FLPow': table.getNumber('FLWM', 100),
+        'FRPow': table.getNumber('FRWM', 100),
+        'BLPow': table.getNumber('BLWM', 100),
+        'BRPow': table.getNumber('BRWM', 100)
         }
     leRobot = [arm, balance, LED, swerve]
     return leRobot

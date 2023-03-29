@@ -6,7 +6,7 @@ let gripperWidth = 5;
 let armJointSize = 10;
 let arm1Angle, arm2Angle;
 let gripperClosed;
-let angle = 0;
+let angle;
 
 var feedbackForm, historyForm, themesForm, threeDForm;
 var threeDCanvas, DRIVERLabel;
@@ -47,10 +47,10 @@ h = 400;
 // swerve
 
 // Wheel angle of rotation and magnitude of each wheel
-wheelA = [10, 20];
-wheelB = [10, 20];
-wheelC = [10, 20];
-wheelD = [10, 20];
+wheelA = [0,0];
+wheelB = [0, 0];
+wheelC = [0, 0];
+wheelD = [0, 0];
 
 // Rotation of whole robot
 totRotation = 0;
@@ -93,10 +93,6 @@ function setup() {
 
 	img = loadImage('rainbow.png');
 	fon = loadFont('p5forms_data/ShareTechMono-Regular.ttf')
-
-	arm1Angle = 0;
-	arm2Angle = 0;
-	gripperClosed = false;
 
 	angleMode(DEGREES)
 
@@ -587,40 +583,6 @@ function draw() {
 	formCursor.render();
 }
 
-function keyPressed() {
-	formManager.keyPressed();
-
-	// Testing
-	if (keyCode == LEFT_ARROW) {
-		totRotation += 0.1;
-	} else if (keyCode == RIGHT_ARROW) {
-		totRotation -= 0.1;
-	}
-	if (keyCode == UP_ARROW) {
-		for (let i = 0; i < 4; i += 1) {
-			wheels[i][0] += 1;
-			// wheels[i][1] += 1;
-		}
-	} else if (keyCode == DOWN_ARROW) {
-		for (let i = 0; i < 4; i += 1) {
-			wheels[i][0] -= 1;
-			// wheels[i][1] -= 1;
-		}
-	}
-	if (keyCode == "SPACE") {
-		// Anything else stops rotation
-		// for (let i = 0; i < 4; i += 1) {
-		// 	wheels[i][0] = 0;
-		// 	// wheels[i][1] -= 1;
-		// }
-		// totRotation = 0;
-		return 0;
-	}
-}
-
-function keyReleased() {
-	formManager.keyReleased();
-}
 
 function windowResized() {
 	createCanvas(document.body.clientWidth, 945);
@@ -682,14 +644,16 @@ function swerve(object) {
 		object.translate(arrows[i].x, arrows[i].y);
 		object.rotate(wheels[i][0]);
 		object.translate(-arrows[i].x, -arrows[i].y);
-		object.triangle(
-			arrows[i].x + wheels[i][1]+5,
-			arrows[i].y + wheels[i][1]-5,
-			arrows[i].x + wheels[i][1] - 5,
-			arrows[i].y + wheels[i][1] + 5,
-			arrows[i].x + wheels[i][1]+8,
-			arrows[i].y + wheels[i][1]+8,
-		);
+		if(wheels[i][1] >=5){
+			object.triangle(
+				arrows[i].x + wheels[i][1]+5,
+				arrows[i].y + wheels[i][1]-5,
+				arrows[i].x + wheels[i][1] - 5,
+				arrows[i].y + wheels[i][1] + 5,
+				arrows[i].x + wheels[i][1]+8,
+				arrows[i].y + wheels[i][1]+8,
+			);
+		}
 		object.line(
 			arrows[i].x,
 			arrows[i].y,
@@ -932,13 +896,20 @@ function UI(object) {
 	console.log(data); // log the data to the console for debugging
 	if (data.length > 0) {
 	  // access the first element of the array and the "balanceAngle" property
-	  balanceAngle = data[1].balanceAngle;
+	  angle = data[1].balanceAngle;
 	  arm1Angle = data[0].arm1Angle;
 	  arm2Angle = data[0].arm2Angle;
-	  wheelA = [data[3].FLAngle, data[3].FLPow/5];
-	  wheelB = [data[3].FRAngle, data[3].FRPow/5];
-	  wheelC = [data[3].BLAngle, data[3].BLPow/5];
-	  wheelD = [data[3].BRAngle, data[3].BRPow/5];
+	  if(data[0].grpperClosed == 0){
+		gripperClosed = false;
+	  }
+	  else{
+		gripperClosed = true;
+	  }
+	  wheelA = [data[3].FLAngle+135, data[3].FLPow/5];
+	  wheelB = [data[3].FRAngle+135, data[3].FRPow/5];
+	  wheelC = [data[3].BLAngle+135, data[3].BLPow/5];
+	  wheelD = [data[3].BRAngle+135, data[3].BRPow/5];
+	  wheels = [wheelA, wheelB, wheelC, wheelD]
 	  //LED = data[2].currentState;
 
 	}
