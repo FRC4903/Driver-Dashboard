@@ -1,5 +1,6 @@
 from networktables import NetworkTables
-import json
+from flask import Flask
+
 
 # To see messages from networktables, you must setup logging
 import logging
@@ -12,10 +13,18 @@ NetworkTables.initialize(server=ip)
 
 table = NetworkTables.getTable("SmartDashboard")
 
-while True:
 
-    print(table.getNumber('colorState', 0))
+app = Flask(__name__)
 
+@app.after_request
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = 'http://127.0.0.1:5555'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    response.headers['Access-Control-Allow-Methods'] = 'OPTIONS, GET, POST, PUT, DELETE'
+    return response
+
+@app.route("/")
+def hello():
     arm = {
         'arm1Angle': table.getNumber('arm1Angle', 0),
         'arm2Angle': table.getNumber('arm2Angle', 0)
@@ -35,24 +44,13 @@ while True:
         'FRPow': table.getNumber('FRWM', 0),
         'BLPow': table.getNumber('BLWM', 0),
         'BRPow': table.getNumber('BRWM', 0)
-    }
+        }
+    leRobot = [arm, balance, LED, swerve]
+    return leRobot
 
-    json_object = json.dumps(arm, indent=4)
-    
-    with open("NetworkTables/arm.json", "w") as outfile:
-        outfile.write(json_object)
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=3000)
 
-    json_object = json.dumps(balance, indent=4)
-    
-    with open("NetworkTables/balance.json", "w") as outfile:
-        outfile.write(json_object)
 
-    json_object = json.dumps(LED, indent=4)
+
     
-    with open("NetworkTables/LED.json", "w") as outfile:
-        outfile.write(json_object)
-    
-    json_object = json.dumps(swerve, indent=4)
-    
-    with open("NetworkTables/swerve.json", "w") as outfile:
-        outfile.write(json_object)

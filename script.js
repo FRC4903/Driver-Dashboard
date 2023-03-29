@@ -1,3 +1,4 @@
+let url = 'http://localhost:3000/'
 let arm1Length = 100;
 let arm2Length = 75;
 let gripperLength = 25;
@@ -23,7 +24,7 @@ var DRIVERnameTextBox
 
 var engaged = false;
 var score;
-var docked = false;
+var docked;
 
 var fon
 
@@ -88,10 +89,12 @@ function preload() {
 
 function setup() {
 
+	setInterval(getData, 20);
+
 	img = loadImage('rainbow.png');
 	fon = loadFont('p5forms_data/ShareTechMono-Regular.ttf')
 
-	arm1Angle = 340;
+	arm1Angle = 0;
 	arm2Angle = 0;
 	gripperClosed = false;
 
@@ -105,14 +108,12 @@ function setup() {
 	[0,0,0,0,0,0,0,0,0],                 
 	[0,0,0,0,0,0,0,0,0]]
 
-	dockedVals = [[0,0],[0,0]]
-
+	docked = [false, false]
+	engaged = [false, false]
 
 	score = 0;
 	links = 0;
 	mode = "auto"
-	docked = false
-	engaged = false
 	temp = 0
 
 	resizeCanvas(1920,1080, P2D);
@@ -448,14 +449,6 @@ function setup() {
 
 function draw() {
 	background(220);
-	var a = loadJSON("NetworkTables/arm.json");
-	var b = loadJSON("NetworkTables/balance.json");
-	var c = loadJSON("NetworkTables/LED.json");
-
-	arm1Angle = a.arm1Angle;
-	arm2Angle = a.arm2Angle;
-	angle = b.balanceAngle;
-	shape = c.colorState;
 
 	var c = threeDCanvas.canvas;
 
@@ -745,15 +738,21 @@ function UI(object) {
 	object.text("Engaged?", 410*0.8, 75*0.8)
 	
 	object.noFill()
-	if (docked) {
-		object.fill("green")
-	}
-	object.rect(555*0.8, 15*0.8, 20*0.8, 20*0.8)
-	object.noFill()
-	
-	if (engaged) {
-		object.fill("green")
-	}
+	if (mode == 'tele' && docked[1]) {
+        object.fill("green")
+    }
+    else if (mode == 'auto' && docked[0]) {
+        object.fill("green")
+    }
+    object.rect(555*0.8, 15*0.8, 20*0.8, 20*0.8)
+    object.noFill()
+    
+    if (mode == 'tele' && engaged[1]) {
+        object.fill("green")
+    }
+    else if (mode == 'auto' && engaged[0]) {
+        object.fill("green")
+    }
 	object.rect(555*0.8, 55*0.8, 20*0.8, 20*0.8)
 	
 	object.fill("black")
@@ -766,74 +765,94 @@ function UI(object) {
 	object.fill("white")
   }
 
-function mouseClicked() {
-	for (i = 0; i < 3; i+=1) {
-	  for (j = 0; j < 9; j+=1) {
-		if (onHitbox((j*80+50)*0.8, (i*100+120)*0.8, 60*0.8, 60*0.8)) {
-		  if (grid[i][j] == 0) {
-			grid[i][j] = 1;
-			//if not scored before
-			if (modeScored[i][j] == 0) {
-				if (mode=="auto") {
-					modeScored[i][j] = "auto"
-				}
-				else {
-					modeScored[i][j] = "tele"
-				}
-			}
-			calculateScore("piece", i, j, 1)
-			computeLinks()
-		  }
-		  else {
-			grid[i][j] = 0;
-			//if not scored before
-			if (modeScored[i][j] == 0) {
-				if (mode=="auto") {
-					modeScored[i][j] = "auto"
-				}
-				else {
-					modeScored[i][j] = "tele"
-				}
-			}
-			calculateScore("piece", i, j, -1)
-			computeLinks()
-		  }
-		}
-	  }
-	}
-	if (onHitbox(10*0.8, 40*0.8, 90*0.8, 50*0.8)) {
-	  mode = "auto"
-	  docked = false
-	  engaged = false
-	  computeLinks()
-	}
-	if (onHitbox(100*0.8, 40*0.8, 90*0.8, 50*0.8)) {
-	  mode = "tele"
-	  docked = false
-	  engaged = false
-	  computeLinks()
-	}
+  function mouseClicked() {
+    for (i = 0; i < 3; i+=1) {
+      for (j = 0; j < 9; j+=1) {
+        if (onHitbox((j*80+50)*0.8, (i*100+120)*0.8, 60*0.8, 60*0.8)) {
+          if (grid[i][j] == 0) {
+            grid[i][j] = 1;
+            //if not scored before
+            if (modeScored[i][j] == 0) {
+                if (mode=="auto") {
+                    modeScored[i][j] = "auto"
+                }
+                else {
+                    modeScored[i][j] = "tele"
+                }
+            }
+            calculateScore("piece", i, j, 1)
+            computeLinks()
+          }
+          else {
+            grid[i][j] = 0;
+            //if not scored before
+            if (modeScored[i][j] == 0) {
+                if (mode=="auto") {
+                    modeScored[i][j] = "auto"
+                }
+                else {
+                    modeScored[i][j] = "tele"
+                }
+            }
+            calculateScore("piece", i, j, -1)
+            computeLinks()
+          }
+        }
+      }
+    }
+    if (onHitbox(10*0.8, 40*0.8, 90*0.8, 50*0.8)) {
+      mode = "auto"
+      computeLinks()
+    }
+    if (onHitbox(100*0.8, 40*0.8, 90*0.8, 50*0.8)) {
+      mode = "tele"
+      computeLinks()
+    }
 
-	if (onHitbox(555*0.8, 15*0.8, 20*0.8, 20*0.8)) {
-	  if (!docked) {
-		docked = true;
-		calculateScore("dock", -1, -1, 1)
-	  }
-	  else {
-		docked = false;
-		calculateScore("dock", -1, -1, -1)
-	  }
-	}
-	if (onHitbox(555*0.8, 55*0.8, 20*0.8, 20*0.8)) {
-	  if (!engaged) {
-		engaged = true;
-		calculateScore("eng", -1, -1, 1)
-	  }
-	  else {
-		engaged = false;
-		calculateScore("eng", -1, -1, -1)
-	  }
-	}
+    if (onHitbox(555*0.8, 15*0.8, 20*0.8, 20*0.8)) {
+        if (mode == 'auto'){
+            if (!docked[0]) {
+                docked[0] = true;
+                calculateScore("dock", -1, -1, 1)
+            }
+            else {
+                docked[0] = false;
+                calculateScore("dock", -1, -1, -1)
+            }
+        }
+        else if (mode == 'tele'){
+            if (!docked[1]) {
+                docked[1] = true;
+                calculateScore("dock", -1, -1, 1)
+            }
+            else {
+                docked[1] = false;
+                calculateScore("dock", -1, -1, -1)
+            }
+        }
+    }
+    if (onHitbox(555*0.8, 55*0.8, 20*0.8, 20*0.8)) {
+        if (mode == 'auto'){
+            if (!engaged[0]) {
+                engaged[0] = true;
+                calculateScore("dock", -1, -1, 1)
+            }
+            else {
+                engaged[0] = false;
+                calculateScore("dock", -1, -1, -1)
+            }
+        }
+        else if (mode == 'tele'){
+            if (!engaged[1]) {
+                engaged[1] = true;
+                calculateScore("dock", -1, -1, 1)
+            }
+            else {
+                engaged[1] = false;
+                calculateScore("dock", -1, -1, -1)
+            }
+        }
+    }
   }
   
   function onHitbox(x, y, w, h) {
@@ -900,6 +919,30 @@ function mouseClicked() {
 	  }
 	}
 	links = temp*1
+  }
+
+  function getData() {
+	fetch(url)
+	  .then(response => response.text()) // get the response as text
+	  .then(data => handleData(JSON.parse(data))) // parse the text as JSON
+	  .catch(error => console.error(error));
+  }
+  
+  function handleData(data) {
+	console.log(data); // log the data to the console for debugging
+	if (data.length > 0) {
+	  // access the first element of the array and the "balanceAngle" property
+	  balanceAngle = data[1].balanceAngle;
+	  arm1Angle = data[0].arm1Angle;
+	  arm2Angle = data[0].arm2Angle;
+	  wheelA = [data[3].FLAngle, data[3].FLPow/5];
+	  wheelB = [data[3].FRAngle, data[3].FRPow/5];
+	  wheelC = [data[3].BLAngle, data[3].BLPow/5];
+	  wheelD = [data[3].BRAngle, data[3].BRPow/5];
+	  //LED = data[2].currentState;
+
+	}
+	// add more logic to handle the rest of the data array as needed
   }
 
 window.onresize = windowResized();
