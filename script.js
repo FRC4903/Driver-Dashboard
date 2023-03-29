@@ -899,7 +899,7 @@ function UI(object) {
 	  angle = data[1].balanceAngle;
 	  arm1Angle = data[0].arm1Angle;
 	  arm2Angle = data[0].arm2Angle;
-	  if(data[0].grpperClosed == 0){
+	  if(data[0].gripperClosed == 0){
 		gripperClosed = false;
 	  }
 	  else{

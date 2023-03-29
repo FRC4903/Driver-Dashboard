@@ -41,10 +41,10 @@ def hello():
         'FRAngle': table.getNumber('FRCC', 12),
         'BLAngle': table.getNumber('BLCC', 12),
         'BRAngle': table.getNumber('BRCC', 12),
-        'FLPow': table.getNumber('FLWM', 100),
-        'FRPow': table.getNumber('FRWM', 100),
-        'BLPow': table.getNumber('BLWM', 100),
-        'BRPow': table.getNumber('BRWM', 100)
+        'FLPow': table.getNumber('FLWM', 0),
+        'FRPow': table.getNumber('FRWM', 0),
+        'BLPow': table.getNumber('BLWM', 0),
+        'BRPow': table.getNumber('BRWM', 0)
         }
     leRobot = [arm, balance, LED, swerve]
     return leRobot
