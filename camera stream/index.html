@@ -1,0 +1,45 @@
+<!DOCTYPE HTML>
+<HTML>
+ <HEAD>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <TITLE> mjpeg detect </TITLE>
+ </HEAD>
+
+ <BODY>
+
+  <img id="stream" alt="no connection to robot" src="http://wpilibpi.local:1182/stream.mjpg"></img>
+  <script>
+    let image = document.getElementById('stream');
+
+    async function check() {
+      while (true) {
+        try {
+          await image.decode();
+        } catch {
+          let src = image.src;
+          image.src = "";
+          image.src = src;
+        }
+    
+        await new Promise((resolve) => setTimeout(resolve, 2500));
+      }
+    }
+    
+    check();
+  </script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    #stream {
+      object-fit: contain;
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+
+ </BODY>
+</HTML>
