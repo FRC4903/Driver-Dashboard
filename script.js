@@ -167,8 +167,8 @@ function setup() {
 	feedbackForm.title = "Settings";
 	feedbackForm.minw = feedbackForm.w = 220;
 	feedbackForm.minh = feedbackForm.h = 205;
-	feedbackForm.x = 400;
-	feedbackForm.y = 240;
+	feedbackForm.x = 680;
+	feedbackForm.y = 160;
 
 	var orderingInfoLabel = new P5Label();
 	orderingInfoLabel.text = "\n\n" +
@@ -288,7 +288,7 @@ function setup() {
 	threeDForm.title = "3D Canvas";
 	threeDForm.w = 500;
 	threeDForm.h = 350;
-	threeDForm.x = 50;
+	threeDForm.x = 75;
 	threeDForm.y = 50;
 
 	threeDCanvas = new P5Canvas();
@@ -303,33 +303,14 @@ function setup() {
 	threeDForm.container.addControl(threeDCanvas);
 	threeDForm.container.addControl(DRIVERLabel);createCanvas(1280, 720, P2D);
 	
-	// Create a canvas clear function
-	var clearCanvas = function(object) {	
-		// Get the drawing surface
-		var c = object.canvas;
 	
-		if(object == balanceCanvas){
-			if(Math.abs(angle)<=2){
-				c.background(0,200,0)
-			}
-			else{
-				c.background(200,0,0)
-			}
-		}else{
-			// Render a white background
-			c.background(220);
-		}
-	
-		// Disable fill
-		c.noFill();
-	}
 	
 	// Create the GUI
 	
 	var armForm = new P5Form();
 	
-	armForm.x = 650;
-	armForm.y = 50;
+	armForm.x = 820;
+	armForm.y = 500;
 	armForm.w = 400;
 	armForm.h = 400;
 	armForm.container.backColor = color(230, 255, 230);
@@ -345,15 +326,12 @@ function setup() {
 	armForm.container.addControl(armCanvas);	
 	
 	// Show the form
-	formManager.showForm(armForm);
 	
-	// Clear the canvas
-	clearCanvas(armCanvas);
 
 	var balanceForm = new P5Form();
 	
 	balanceForm.x = 1350;
-	balanceForm.y = 50;
+	balanceForm.y = 30;
 	balanceForm.w = 400;
 	balanceForm.h = 400;
 	balanceForm.container.backColor = color(230, 255, 230);
@@ -368,12 +346,11 @@ function setup() {
 	
 	balanceForm.container.addControl(balanceCanvas);	
 	
-	clearCanvas(balanceCanvas);
 
 	scoreForm = new P5Form();
 	
-	scoreForm.x = 1350;
-	scoreForm.y = 30;
+	scoreForm.x = 50;
+	scoreForm.y = 500;
 	scoreForm.w = 820*0.8;
 	scoreForm.h = 440*0.8;
 	scoreForm.container.backColor = color(220);
@@ -387,8 +364,8 @@ function setup() {
 
 	LEDform = new P5Form();
 
-	LEDform.x = 1;
-	LEDform.y = 3;
+	LEDform.x = 980;
+	LEDform.y = 160;
 	LEDform.w = 200;
 	LEDform.h = 200;
 	LEDform.container.backColor = color(220);
@@ -402,15 +379,12 @@ function setup() {
 	LEDform.container.addControl(LEDcanvas)
 	
 	// Show the form
-	formManager.showForm(scoreForm);
 	
-	// Clear the canvas
-	clearCanvas(scoreCanvas);
 
 	swerveForm = new P5Form();
 	
 	swerveForm.x = 1350;
-	swerveForm.y = 30;
+	swerveForm.y = 480;
 	swerveForm.w = 420;
 	swerveForm.h = 420;
 	swerveForm.container.backColor = color(220);
@@ -426,10 +400,7 @@ function setup() {
 	swerveForm.container.addControl(swerveCanvas);	
 
 	// Show the form
-	formManager.showForm(scoreForm);
 	
-	// Clear the canvas
-	clearCanvas(scoreCanvas);
 
 	formManager.showForm(threeDForm);
 	formManager.showForm(feedbackForm);
@@ -468,6 +439,11 @@ function draw() {
 	rot += 0.01;
 	
 	var d  = armCanvas.canvas;
+	d.angleMode(DEGREES)	
+
+	d.clear();
+	d.background(200);
+	d.push();
 
 	d.translate(190, 180);
 
@@ -479,13 +455,13 @@ function draw() {
 	d.ellipse(0, 0, armJointSize);
 
 	// First arm
-	d.rotate(radians(arm1Angle));
+	d.rotate(arm1Angle);
 	d.line(0, 0, arm1Length, 0);
 
 	// Second arm
 	d.translate(arm1Length, 0);
 	d.ellipse(0, 0, armJointSize);
-	d.rotate(radians(arm2Angle));
+	d.rotate(arm2Angle);
 	d.line(0, 0, arm2Length, 0);
 
 	// Gripper
@@ -495,21 +471,29 @@ function draw() {
 		d.line(0, 0, 12.5, 0);
 	} else {
 		let gripperAngle = 105;
-		let gripperX = -gripperLength / 2 * cos(radians(gripperAngle));
-		let gripperY = -gripperLength / 2 * sin(radians(gripperAngle));
+		let gripperX = -gripperLength / 2 * cos(gripperAngle);
+		let gripperY = -gripperLength / 2 * sin(gripperAngle);
 		d.line(0, 0, gripperX, gripperY);
 		gripperX = gripperX;
 		gripperY = -gripperY;
 		d.line(0, 0, gripperX, gripperY);
 	}
+	d.pop();
 
 	var e = balanceCanvas.canvas;
-
+	e.angleMode(DEGREES)
+	e.clear();
+	if(Math.abs(angle)<=2){
+		e.background(0,200,0)
+	}
+	else{
+		e.background(200,0,0)
+	}
 	e.strokeWeight(0)
 	e.textSize(28)
 	e.textFont(fon)
-	e.text("angle: " + str(angle % 360), 160, 340)
-
+	e.text("angle: " + parseInt(angle % 360), 160, 340)
+	e.push()
 	e.strokeWeight(4)
 	e.stroke(25)
 	e.line(0, 200, 400, 200)
@@ -527,6 +511,7 @@ function draw() {
 	e.line(0, -18, 0, -150)
 	e.line(0, -150, 30, -40)
 	e.strokeWeight(2)
+	e.pop()
 
 	var f = scoreCanvas.canvas;
 
@@ -555,12 +540,6 @@ function draw() {
 	  g.rectMode(RADIUS)
   
 	  g.background(220);
-		currentState = mouseIsPressed
-	  if(currentState != lastState && currentState === true && onHitboxV2(10,10,180,180)){
-		  if(shape == 3)shape = 0
-		  else shape += 1
-	  }
-	  lastState = mouseIsPressed
 	  
 	  if (shape == 1){
 		  drawCube(g)
@@ -605,6 +584,8 @@ function drawCone(object){
 // swerve
 function swerve(object) {
 
+	object.angleMode(DEGREES);
+
 	// swerve diagram
 	n = 400 / 4;
 	// Arrows
@@ -644,7 +625,8 @@ function swerve(object) {
 		object.translate(arrows[i].x, arrows[i].y);
 		object.rotate(wheels[i][0]);
 		object.translate(-arrows[i].x, -arrows[i].y);
-		if(wheels[i][1] >=5){
+		if(wheels[i][1] >=2){
+			object.fill(205, 0, 0)
 			object.triangle(
 				arrows[i].x + wheels[i][1]+5,
 				arrows[i].y + wheels[i][1]-5,
@@ -665,6 +647,7 @@ function swerve(object) {
 }
 
 function UI(object) {
+	object.textFont(fon)
 	object.fill("black")
 	for (i = 200*0.8; i < 800*0.8; i+=200*0.8) {
 	  object.line(i, 0, i, 100*0.8)
@@ -822,10 +805,6 @@ function UI(object) {
   function onHitbox(x, y, w, h) {
 	return (scoreForm.mouseX-12 > x && scoreForm.mouseX-12 < x+w && scoreForm.mouseY-(30*0.8) > y && scoreForm.mouseY-(30*0.8) < y+h);
   }
-
-  function onHitboxV2(x, y, w, h) {
-	return (LEDform.mouseX-8 > x && LEDform.mouseX-8 < x+w && LEDform.mouseY-(30*0.8) > y && LEDform.mouseY-(30*0.8) < y+h);
-  }
   
   //dock, eng, piece
   function calculateScore(type, y, x, operation) {
@@ -905,12 +884,28 @@ function UI(object) {
 	  else{
 		gripperClosed = true;
 	  }
-	  wheelA = [data[3].FLAngle+135, data[3].FLPow/5];
-	  wheelB = [data[3].FRAngle+135, data[3].FRPow/5];
-	  wheelC = [data[3].BLAngle+135, data[3].BLPow/5];
-	  wheelD = [data[3].BRAngle+135, data[3].BRPow/5];
+	  if(data[3].FLPow < 0){
+		wheelA = [data[3].FLAngle+405, -data[3].FLPow*20.0];
+	  }else{
+		wheelA = [data[3].FLAngle+225, data[3].FLPow*20.0];
+	  }
+	  if(data[3].BLPow < 0){
+		wheelB = [data[3].BLAngle+405, -data[3].BLPow*20.0];
+	  }else{
+		wheelB = [data[3].BLAngle+225, data[3].BLPow*20.0];
+	  }
+	  if(data[3].BRPow < 0){
+		wheelC = [data[3].BRAngle+405, -data[3].BRPow*20.0];
+	  }else{
+		wheelC = [data[3].BRAngle+225, data[3].BRPow*20.0];
+	  }
+	  if(data[3].FRPow < 0){
+		wheelD = [data[3].FRAngle+405, -data[3].FRPow*20.0];
+	  }else{
+		wheelD = [data[3].FRAngle+225, data[3].FRPow*20.0];
+	  }
 	  wheels = [wheelA, wheelB, wheelC, wheelD]
-	  //LED = data[2].currentState;
+	  shape = data[2].currentState;
 
 	}
 	// add more logic to handle the rest of the data array as needed
