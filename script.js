@@ -130,7 +130,7 @@ function setup() {
 		}
 	}
 
-	var cookiesButton_onClick = function() {
+	var feedbackButton_onClick = function() {
 		if (DRIVERnameTextBox.text == "") {
 			msgbox.showMsgBox(feedbackForm, "Warning", "Please enter your name", MSGBOX_WARN_ICON, ["OK"], null);
 		} else {
@@ -177,13 +177,13 @@ function setup() {
 	orderingInfoLabel.h = 50;
 	orderingInfoLabel.anchorRight = true;
 
-	var cookiesButton = new P5Button();
-	cookiesButton.anchorRight = true;
-	cookiesButton.text = "Submit Feedback";
-	cookiesButton.x = 5;
-	cookiesButton.y = 90;
-	cookiesButton.w = 205;
-	cookiesButton.onClick = cookiesButton_onClick;
+	var feedbackButton = new P5Button();
+	feedbackButton.anchorRight = true;
+	feedbackButton.text = "Submit Feedback";
+	feedbackButton.x = 5;
+	feedbackButton.y = 90;
+	feedbackButton.w = 205;
+	feedbackButton.onClick = feedbackButton_onClick;
 
 	var prevOrdersButton = new P5Button();
 	prevOrdersButton.anchorRight = true;
@@ -222,10 +222,10 @@ function setup() {
 	notesTextBox.w = 110;
 
 	feedbackForm.container.toolTip.addToolTip(notesTextBox, "Add feedback note");
-	feedbackForm.container.toolTip.addToolTip(cookiesButton, "Submit Feedback");
+	feedbackForm.container.toolTip.addToolTip(feedbackButton, "Submit Feedback");
 
 	feedbackForm.container.addControl(orderingInfoLabel);
-	feedbackForm.container.addControl(cookiesButton);
+	feedbackForm.container.addControl(feedbackButton);
 	feedbackForm.container.addControl(prevOrdersButton);
 	feedbackForm.container.addControl(DRIVERnameTextBox);
 	feedbackForm.container.addControl(notesTextBox);
@@ -863,6 +863,40 @@ function UI(object) {
 	}
 	links = temp*1
   }
+
+  function keyPressed() {	
+	formManager.keyPressed();	
+	// Testing	
+	if (keyCode == LEFT_ARROW) {	
+		totRotation += 0.1;	
+	} else if (keyCode == RIGHT_ARROW) {	
+		totRotation -= 0.1;	
+	}	
+	if (keyCode == UP_ARROW) {	
+		for (let i = 0; i < 4; i += 1) {	
+			wheels[i][0] += 1;	
+			// wheels[i][1] += 1;	
+		}	
+	} else if (keyCode == DOWN_ARROW) {	
+		for (let i = 0; i < 4; i += 1) {	
+			wheels[i][0] -= 1;	
+			// wheels[i][1] -= 1;	
+		}	
+	}	
+	if (keyCode == "SPACE") {	
+		// Anything else stops rotation	
+		// for (let i = 0; i < 4; i += 1) {	
+		// 	wheels[i][0] = 0;	
+		// 	// wheels[i][1] -= 1;	
+		// }	
+		// totRotation = 0;	
+		return 0;	
+	}	
+}	
+function keyReleased() {	
+	formManager.keyReleased();	
+
+}
 
   function getData() {
 	fetch(url)
