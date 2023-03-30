@@ -26,8 +26,8 @@ def add_cors_headers(response):
 @app.route("/")
 def hello():
     arm = {
-        'arm1Angle': table.getNumber('arm1Angle', 0),
-        'arm2Angle': table.getNumber('arm2Angle', 0),
+        'arm1Angle': -1*(table.getNumber('arm1Angle', 0)/3),
+        'arm2Angle': 135-(table.getNumber('arm2Angle', 0))/2 +1*(table.getNumber('arm1Angle', 0)/3),
         'gripperClosed': table.getNumber('gripperStatus', 0)
     }
     balance = {
